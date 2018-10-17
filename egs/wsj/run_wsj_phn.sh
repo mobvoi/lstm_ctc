@@ -4,7 +4,7 @@
            ## This relates to the queue.
 . ./path.sh
 
-stage=4
+stage=1
 wsj0=/nfs2/yyshi/LDC/LDC93S6B
 wsj1=/nfs2/yyshi/LDC/LDC94S13B
 gpus="0"
@@ -44,12 +44,6 @@ fi
   batch_threads=8
   report_interval=1
 
-
-
-  if [ ! "$fpro_size" -eq "0" -a  ! "$fpro_size" -eq "$num_projects" ] ; then
-	  echo "fpro_size should be equal num_projects"
-	  exit 1;
-  fi
 
   export CUDA_VISIBLE_DEVICES=$gpus
 

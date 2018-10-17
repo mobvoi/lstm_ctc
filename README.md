@@ -3,7 +3,7 @@
 Mobvoi E2E speech recognition (MOE) uses high rank LSTM-CTC based models. The toolkit is inspired by [Kaldi](http://kaldi-asr.org/) and [EESEN](https://github.com/srvk/eesen). Data preparation, feature processing and WFST based graph operation is fork from Kaldi. LSTM-CTC deep model training is built based on [Tensorflow](https://www.tensorflow.org/). WFST based method from EESEN is applied to leverge token, lexicon and language model (TLG) for decoding.
 
 ### Installation
-The toolkit is tested on Ubuntu 16.04 LST. It requires python2.7, Tensorflow 1.11 (We haven't tested for higher version of Tensorflow), Kaldi and EESEN.
+The toolkit is tested on Ubuntu 16.04 LST. It requires python2.7, Tensorflow 1.8 (We haven't tested for higher version of Tensorflow), Kaldi and EESEN.
 
 * We put the Kaldi, EESEN and our LSTM-CTC toolkit in the same directory level. Otherwise, you may need to modify the path file (e.g. [path.sh](./egs/wsj/path.sh)) accordingly.
 

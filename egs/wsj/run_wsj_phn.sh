@@ -5,8 +5,8 @@
 . ./path.sh
 
 stage=4
-wsj0=/nfs2/yyshi/data/LDC93S6B
-wsj1=/nfs2/yyshi/data/LDC94S13B
+wsj0=/nfs2/yyshi/LDC/LDC93S6B
+wsj1=/nfs2/yyshi/LDC/LDC94S13B
 gpus="0"
 num_layers=4
 learn_rate=0.001
@@ -15,8 +15,8 @@ left_context=1
 right_context=1
 subsample=3
 num_projects=320
-num_experts=0
-moe_temp=10.0
+num_experts=72
+moe_temp=20.0
 nnet_type=blstm
 use_decay=2
 target_length_cutoff=2
@@ -24,6 +24,9 @@ prior_label_sm=0
 uniform_label_sm=0
 use_bn=false
 num_neurons=320    # number of memory cells in every LSTM layer
+batch_size=32
+halving_factor=0.8
+
 . utils/parse_options.sh
 
 savedir=$1
@@ -38,7 +41,6 @@ fi
   input_dim=120   # dimension of the input features; we will use 40-dimensional fbanks with deltas and double deltas
   optimizer="adam"
   sort_by_len=true
-  batch_size=16
   batch_threads=8
   report_interval=1
 
@@ -52,7 +54,7 @@ fi
   export CUDA_VISIBLE_DEVICES=$gpus
 
 
-  dir=exp/${nnet_type}_proj_${num_layers}_${num_neurons}_${num_projects}_${learn_rate}_l${left_context}r${right_context}_d${dropout_rate}_ex${num_experts}_moet${moe_temp}_bn${use_bn}_ud${use_decay}_usm${uniform_label_sm}_psm${prior_label_sm}
+  dir=exp/${nnet_type}_proj_${num_layers}_${num_neurons}_${num_projects}_${learn_rate}_l${left_context}r${right_context}_d${dropout_rate}_ex${num_experts}_moet${moe_temp}_usm${uniform_label_sm}_psm${prior_label_sm}_bs${batch_size}_hf${halving_factor}
   mkdir -p $dir
   #hostname=$(hostname)
   #case $hostname in 
@@ -72,6 +74,8 @@ fi
   add_deltas=true
   echo $norm_vars > $dir/norm_vars  # output feature configs which will be used in decoding
   echo $add_deltas > $dir/add_deltas
+
+
 
 
 
@@ -235,6 +239,7 @@ fi
    echo "use_bn = $use_bn"
    echo "dropout_rate = $dropout_rate"
    echo "num_experts = $num_experts"
+   echo "moe_temp = $moe_temp"
    echo "uniform_label_sm = $uniform_label_sm"
    echo "prior_label_sm = $prior_label_sm"
    echo "prior_label_path = $prior_label_path"
@@ -252,6 +257,7 @@ fi
     --learn-rate $learn_rate \
     --optimizer $optimizer \
 	--cv_goal loss \
+	--halving_factor $halving_factor \
 	--num_targets $num_targets \
 	--decode_graph_dir data/lang_phn_test_tgpr \
 	--decode_data_dir data/test_eval92 \

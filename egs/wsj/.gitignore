@@ -1,0 +1,71 @@
+# C++ compilation files
+*.o
+*.a
+.DS_Store
+
+# Python compilation files
+*.pyc
+
+# Intermediate makefile
+.depend.mk
+
+# Intermediate files
+*~
+
+# Vim
+[._]*.s[a-w][a-z]
+[._]s[a-w][a-z]
+*.un~
+Session.vim
+.netrwhist
+*~
+
+# Compiled Object files
+*.slo
+*.lo
+*.o
+*.obj
+
+# Compiled Dynamic libraries
+*.dylib
+*.dll
+
+# Compiled Static libraries
+*.lai
+*.la
+*.a
+*.lib
+
+# Executables
+*.exe
+*.out
+*.app
+
+# Ctags
+tags
+
+# tfrecord
+tfrecord
+
+# experiments
+exp_*
+exp
+data
+data_*
+fbank
+
+# backup
+backup
+
+# work
+work
+
+# steps / utils
+steps
+utils
+scripts
+conf
+
+
+# tmp nfs system file
+.nfs*

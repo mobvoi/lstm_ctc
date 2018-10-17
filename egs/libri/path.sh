@@ -15,6 +15,7 @@ export PATH=$EESEN_ROOT/src/netbin:$EESEN_ROOT/src/featbin:$EESEN_ROOT/src/decod
 [ ! -e steps ] && cp -r  $KALDI_ROOT/egs/wsj/s5/steps ./ && cp $EESEN_ROOT/asr_egs/wsj/steps/* ./steps/ && cp $EESEN_ROOT/asr_egs/librispeech/steps/* ./steps/
 [ ! -e scripts ] && ln -sf ../../scripts ./
 [ ! -e utils ] && cp -r  $KALDI_ROOT/egs/wsj/s5/utils ./ && cp $EESEN_ROOT/asr_egs/wsj/utils/* ./utils/ && cp $EESEN_ROOT/asr_egs/librispeech/utils/* ./utils/
-[ ! -2 local ] && ln -sf ../wsj/local ./
+[ ! -e local ] && ln -sf ../wsj/local ./
+[ ! -e conf ] && ln -sf ../../conf ./
 
 return 0

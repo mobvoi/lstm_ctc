@@ -143,7 +143,7 @@ for iter in $(seq $max_iter); do
       $tr_tfrecords_scp $nnet_config $nnet_in $nnet_out \
       2> $dir/nnet.${iter}.tr.log 
     tr_loss=$(grep "^INFO:tensorflow:tr_loss" $dir/nnet.${iter}.tr.log | awk '{print $NF}')
-    [ "$tr_loss" == "nan" ] && echo "(ERROR) tr_loss = $tr_loss"
+    [ "$tr_loss" == "nan" ] && echo "(ERROR) tr_loss = $tr_loss" 
 	 
 	if [ "$tr_loss" == "nan" ]; then
 		echo "ERROR tr_loss = $tr_loss"
@@ -162,7 +162,7 @@ for iter in $(seq $max_iter); do
           --batch-threads $batch_threads \
           --report-interval=$report_interval \
           $tr_tfrecords_scp $nnet_config $nnet_in $nnet_out \
-          2> $dir/nnet.${iter}.tr.log 
+          2> $dir/nnet.${iter}.tr.log || exit 1
         tr_loss=$(grep "^INFO:tensorflow:tr_loss" $dir/nnet.${iter}.tr.log | awk '{print $NF}')
         [ "$tr_loss" == "nan" ] && echo "(ERROR) tr_loss = $tr_loss" && exit 1
 	 fi

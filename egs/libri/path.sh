@@ -17,5 +17,6 @@ export PATH=$EESEN_ROOT/src/netbin:$EESEN_ROOT/src/featbin:$EESEN_ROOT/src/decod
 [ ! -e utils ] && cp -r  $KALDI_ROOT/egs/wsj/s5/utils ./ && cp $EESEN_ROOT/asr_egs/wsj/utils/* ./utils/ && cp $EESEN_ROOT/asr_egs/librispeech/utils/* ./utils/
 [ ! -e local ] && ln -sf ../wsj/local ./
 [ ! -e conf ] && ln -sf ../../conf ./
+[ ! -e bin ] && ln -sf ../../bin ./
 
 return 0

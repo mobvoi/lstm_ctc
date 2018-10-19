@@ -4,7 +4,7 @@
            ## This relates to the queue.
 [ -f path.sh ] && . ./path.sh;
 
-stage=5
+stage=1
 #libri=/export/data/en-asr-data/OpenSLR/LibriSpeech
 libri=/nfs2/yyshi/OpenSLR/LibriSpeech
 num_layers=4

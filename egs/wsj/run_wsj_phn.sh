@@ -239,7 +239,6 @@ fi
    echo "prior_label_path = $prior_label_path"
    echo "seed = 777") > $nnet_config
 
-  data=$(basename $data_train)
   $train_script \
     --objective "ctc" \
     --report-interval $report_interval \

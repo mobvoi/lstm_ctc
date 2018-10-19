@@ -75,6 +75,9 @@ def create_logits_blstm(nnet_input, sequence_length, nnet_config):
         moe_temp = 10.0
     log = 'create_logits_blstm(): moe_temp = %f' % moe_temp
     tf.logging.info(log)
+    dropout_rate = nnet_config.get('dropout_rate')
+    log = 'create_logits_blstm(): dropout_rate = %f' % dropout_rate
+    tf.logging.info(log)
     uniform_label_sm = nnet_config.get('uniform_label_sm')
     if uniform_label_sm is not None:
         log = 'create_logits_blstm(): uniform label sm weight = %f' % uniform_label_sm
@@ -103,22 +106,8 @@ def create_logits_blstm(nnet_input, sequence_length, nnet_config):
 
     nnet_input_shape = tf.shape(nnet_input)
     batch_size = nnet_input_shape[0]
-
-    # Input feature projection
     lstm_input_dim = input_dim
-    fp_loss = None 
-    if fpro_size is not None and fpro_size > 0:
-        nnet_input, fp_loss = feature_project(
-            nnet_input,
-            input_dim, 
-            sequence_length,
-            fpro_size)
-        if weight_fpro > 0:
-            fp_loss = fp_loss * weight_fpro
-        else:
-            fp_loss = None
-        lstm_input_dim = fpro_size 
-    
+
     # reverse over sequence length dimension
     back_nnet_input=tf.reverse_sequence(nnet_input, sequence_length, seq_axis=1, batch_axis=0)
 

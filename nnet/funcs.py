@@ -29,7 +29,6 @@ def train(sess, graph, evaluate = False, report_interval = None):
               'summary' : graph['summary'],
               'loss' : graph['loss'],
               'eval_loss' : graph['eval_loss'],
-              'dsm_loss' : graph['dsm_loss'],
               'sequence_length' : graph['sequence_length']
             }
 

@@ -64,5 +64,11 @@ for lm_suffix in tgsmall tgmed ; do  ###tglarge fglarge ; do
     fsttablecompose ${langdir}/T.fst $tmpdir/LG.fst > $test/TLG.fst || exit 1;
 done
 
+echo "Preparing const fst for large LM arpa ... "
+for lm_suffix in tglarge fglarge ; do
+	utils/build_const_arpa_lm.sh $lmdir/lm_${lm_suffix}.arpa.gz \
+	$langdir ${langdir}_test_${lm_suffix} || exit 1;
+done	
+
 echo "Composing decoding graph TLG.fst succeeded"
 rm -r $tmpdir

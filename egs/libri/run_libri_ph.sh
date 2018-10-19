@@ -5,7 +5,8 @@
 [ -f path.sh ] && . ./path.sh;
 
 stage=5
-libri=/export/data/en-asr-data/OpenSLR/LibriSpeech
+#libri=/export/data/en-asr-data/OpenSLR/LibriSpeech
+libri=/nfs2/yyshi/OpenSLR/LibriSpeech
 num_layers=4
 learn_rate=0.0004
 dropout_rate=0.9

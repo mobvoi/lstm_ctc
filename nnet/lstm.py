@@ -19,9 +19,7 @@
 
 import math
 import tensorflow as tf
-from ornn import create_ornn, create_ornn_next
 from moe import create_moe
-from fpro import feature_project
 from bilstm import create_logits_blstm
 
 

@@ -27,8 +27,10 @@ def main(_):
     try:
         config = tf.ConfigProto()
         config.gpu_options.allow_growth = True  # Alway use minimum memory.
+        if args.seed is not None:
+            tf.set_random_seed(args.seed)
+
         sess = tf.Session(config = config)
-    
         nnet_config = nnet.parse_config(args.nnet_config)
         nnet_config['is_training'] = True
 
@@ -36,9 +38,6 @@ def main(_):
         left_context = nnet_config.get('left_context')
         right_context = nnet_config.get('right_context')
         subsample = nnet_config.get('subsample')
-
-        if args.seed is not None:
-            tf.set_random_seed(args.seed)
 
         filename, tfrecord, input_dim = \
             nnet.dataset_from_tfrecords(

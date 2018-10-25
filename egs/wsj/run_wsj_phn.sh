@@ -16,7 +16,7 @@ right_context=1
 subsample=3
 num_projects=320
 num_experts=72
-moe_temp=20.0
+moe_temp=10.0
 nnet_type=blstm
 use_decay=2
 target_length_cutoff=2
@@ -25,7 +25,7 @@ uniform_label_sm=0
 use_bn=false
 num_neurons=320    # number of memory cells in every LSTM layer
 batch_size=32
-halving_factor=0.8
+halving_factor=0.7
 
 . utils/parse_options.sh
 

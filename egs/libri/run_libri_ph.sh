@@ -125,6 +125,10 @@ if [ $stage -le 2 ]; then
 
   # Compile the language-model FST and the final decoding graph TLG.fst
   local/ls_decode_graph.sh $lang_dir $lm_data $lm_tmp/tmp || exit 1;
+
+  # make the const ngram for tglarge and fglarge
+  local/ls_const_graph.sh $lang_dir $lm_data || exit 1;
+  
 fi
 
 
@@ -325,7 +329,12 @@ if [ $stage -le 6 ]; then
       for lm_suffix in tgsmall tgmed; do
           scripts/decode_ctc_lat.sh --cmd "$decode_cmd" --nj 8 --beam 17.0 --lattice_beam 8.0 --max-active 5000 --acwt 0.9  --ntargets $num_targets \
       $data/lang_test_${lm_suffix} $data/$test $dir/decode_${test}_${lm_suffix} || exit 1;
-      done
+	  done
+	 for lm_suffix in tglarge fglarge ; do
+		  steps/lmrescore_const_arpa.sh \
+			  --cmd "$decode_cmd" $data/lang_test_tgmed $data/lang_test_const_${lm_suffix} \
+			  $data/$test $dir/decode_${test}_{tgmed,${lm_suffix}} || exit 1;
+	done
   done
 
 fi

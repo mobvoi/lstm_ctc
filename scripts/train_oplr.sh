@@ -18,8 +18,8 @@ left_context=15
 right_context=5
 
 optimizer="momentum"
-max_iter=50
-min_iters=50 # keep training, disable weight rejection, start learn-rate halving as usual
+max_iter=30
+min_iters=30 # keep training, disable weight rejection, start learn-rate halving as usual
 keep_lr_iters=0 # fix learning rate for N initial epochs, disable weight rejection
 learn_rate=0.008
 start_halving_impr=0.001

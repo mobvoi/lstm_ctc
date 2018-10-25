@@ -27,6 +27,7 @@ def main(_):
     try:
         config = tf.ConfigProto()
         config.gpu_options.allow_growth = True  # Alway use minimum memory.
+        tf.set_random_seed(123)
         sess = tf.Session(config = config)
     
         nnet_config = nnet.parse_config(args.nnet_config)

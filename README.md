@@ -32,9 +32,10 @@ python -c "import tensorflow as tf; print(tf.__version__)"
 We give the detailed experiment setup for [WSJ](./egs/wsj) and [Librispeech](./egs/libri). Refer to RESULT under each example setup for experiment detailed results.
 
 ### References
-For more information, please refer to the following paper(s):
+This is the code we used for the following paper.
 
 Yangyang Shi, Mei-Yuh Hwang, and Xin Lei, "END-TO-END SPEECH RECOGNITION USING A HIGH RANK LSTM-CTC BASED MODEL" submitted to ICASSP 2019
+
 
 
 

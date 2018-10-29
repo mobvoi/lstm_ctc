@@ -88,6 +88,9 @@ if [ $stage -le 1 ]; then
 
   # Compile the language-model FST and the final decoding graph TLG.fst
   local/wsj_decode_graph.sh data/lang_phn || exit 1;
+
+  # Compile const graph
+  local/wsj_const_graph.sh data/lang_phn data/local/nist_lm  || exit 1;
 fi
 
 if [ $stage -le 2 ]; then
@@ -251,10 +254,12 @@ fi
     --optimizer $optimizer \
 	--cv_goal loss \
 	--halving_factor $halving_factor \
+    --max_iter 40 \
+    --min_iters 40 \
 	--num_targets $num_targets \
 	--decode_graph_dir data/lang_phn_test_tgpr \
-	--decode_data_dir data/test_eval92 \
-	--decode_name decode_eval92 \
+	--decode_data_dir data/test_dev93 \
+	--decode_name decode_dev93 \
     --dir $dir > $dir/train_log  || exit 1
 
 fi
@@ -268,11 +273,18 @@ if [ $stage -le 5 ]; then
  
 
 
-  for lm_suffix in tgpr tg; do
+  for lm_suffix in tgpr ; do
     scripts/decode_ctc_lat.sh --cmd "$decode_cmd" --nj 8 --beam 17.0 --lattice_beam 8.0 --max-active 5000 --acwt 0.9  --ntargets $num_targets \
       data/lang_phn_test_${lm_suffix} data/test_dev93 $dir/decode_dev93_${lm_suffix} || exit 1;
+   steps/lmrescore_const_arpa.sh --cmd "$decode_cmd"  data/lang_phn_test_tgpr data/lang_phn_test_const_tg data/test_dev93 \
+        $dir/decode_dev93_tgpr $dir/decode_dev93_const_tg
+
     scripts/decode_ctc_lat.sh --cmd "$decode_cmd" --nj 8 --beam 17.0 --lattice_beam 8.0 --max-active 5000 --acwt 0.9 --ntargets $num_targets \
       data/lang_phn_test_${lm_suffix} data/test_eval92 $dir/decode_eval92_${lm_suffix} || exit 1;
+
+   steps/lmrescore_const_arpa.sh --cmd "$decode_cmd"  data/lang_phn_test_tgpr data/lang_phn_test_const_tg data/test_eval92 \
+        $dir/decode_eval92_tgpr $dir/decode_eval92_const_tg
+
   done
 
 fi

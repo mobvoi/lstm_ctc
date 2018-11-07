@@ -31,6 +31,8 @@ python -c "import tensorflow as tf; print(tf.__version__)"
 ### Experiment
 We give the detailed experiment setup for [WSJ](./egs/wsj) and [Librispeech](./egs/libri). Refer to RESULT under each example setup for experiment detailed results.
 
+* Note the results in experiments are better than the results on our submitted paper.  Due to the GPU operation non-deterministic in model training, the result may not be reproduced exactly every time.  To address this issue, we will run the same setting on the same data multiple times. In this way we could give more meaningful comparison.
+
 ### References
 This is the code we used for the following paper.
 

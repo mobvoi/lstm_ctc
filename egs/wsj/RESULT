@@ -1,4 +1,4 @@
-# The WER result on Librispeech
+# The WER result on WSJ
 # result on dev93 using tgpr
 exp_back/blstm_proj_4_320_320_0.001_l1r1_d0.9_ex72_moet10.0_usm0_psm0_bs32_hf0.7/decode_dev93_tgpr/wer_7:%WER 10.78 [ 888 / 8234, 113 ins, 107 del, 668 sub ]
 exp_back/blstm_proj_4_320_320_0.001_l1r1_d0.9_ex72_moet10.0_usm0_psm0_bs32_hf0.7/decode_dev93_tgpr/wer_6:%WER 10.92 [ 899 / 8234, 106 ins, 116 del, 677 sub ]
@@ -87,3 +87,32 @@ exp_back/blstm_proj_4_320_320_0.001_l1r1_d0.9_ex72_moet10.0_usm0_psm0_bs32_hf0.7
 exp_back/blstm_proj_4_320_320_0.001_l1r1_d0.9_ex72_moet10.0_usm0_psm0_bs32_hf0.7/decode_eval92_const_tg/wer_2:%WER 9.45 [ 533 / 5643, 61 ins, 65 del, 407 sub ]
 exp_back/blstm_proj_4_320_320_0.001_l1r1_d0.9_ex72_moet10.0_usm0_psm0_bs32_hf0.7/decode_eval92_const_tg/wer_1:%WER 10.37 [ 585 / 5643, 64 ins, 73 del, 448 sub ]
 
+_________________________________________________________________________________________________________________
+Due to the non-deterministic in tensorflow GPU operation. In addition to one time results, we also give 5 times results (run the same script with same hyper-parameters multiple times)
+
+* baseline model results using trigram lm without pruning. (./run_wsj_phn.sh --num_experts 0 --moe_temp 0)
+
+| dev93  |eval92| 
+| ------ |:----:| 
+| 10.70  | 7.51 | 
+| 10.76  | 7.43 | 
+| 11.28  | 7.32 |
+| 10.94  | 7.76 | 
+| 11.12  | 7.68 |
+
+* treatment model results using trigram lm without pruning (./run_wsj_phn.sh )
+
+| dev93  |eval92| 
+| ------ |:----:| 
+| 10.65  | 7.14 | 
+| 10.30  | 7.12 | 
+| 10.18  | 7.18 |
+| 9.89  | 7.44 | 
+| 10.35  | 7.27 |
+
+* overall comparison of baseline with treatment
+
+| model | dev93-mean(std) | eval92-mean(std)|
+|-------|:-------------:|:-------------:|
+|baseline|10.96(0.22)   | 7.54(0.17)    |
+|treatment|10.27(0.25)  | 7.23(0.12)    |

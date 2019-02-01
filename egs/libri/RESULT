@@ -351,3 +351,46 @@ exp/libri_blstm_proj_4_320_320_0.0004_l1r1_d0.9_ex44_moet20.0_bnfalse_ud2_usm0_p
 exp/libri_blstm_proj_4_320_320_0.0004_l1r1_d0.9_ex44_moet20.0_bnfalse_ud2_usm0_psm0//decode_test_other_fglarge/wer_19:%WER 16.81 [ 8799 / 52343, 1655 ins, 450 del, 6694 sub ]
 exp/libri_blstm_proj_4_320_320_0.0004_l1r1_d0.9_ex44_moet20.0_bnfalse_ud2_usm0_psm0//decode_test_other_fglarge/wer_20:%WER 17.06 [ 8931 / 52343, 1692 ins, 447 del, 6792 sub ]
 
+_________________________________________________________________________________________________________________
+Due to the non-deterministic in tensorflow GPU operation. In addition to one time results, we also give 5 times results (run the same script with same hyper-parameters multiple times)
+
+* baseline model results. (./run_libri_phn.sh --num_experts 0 --moe_temp 0)
+
+| dataset             |baseline1  |baseline2  |baseline3 |baseline4 |baseline5 |mean(std)          
+| tgsmall-dev-clean		|6.63%	    |6.36%	    |6.57%	   |6.78%	    |6.46%     |6.55%(0.16%)
+| tgsmall-dev-other		|16.40%	    |16.30%	    |16.59%	   |16.97%	  |16.48%    |16.55%(0.26%)
+| tgsmall-test-clean	|6.96%	    |6.79%	    |7.03%	   |7.02%	    |6.84%     |6.93%(0.11%)
+| tgsmall-test-other	|17.10%	    |16.55%	    |16.81%	   |17.23%	  |17.00%    |16.94%(0.27%)
+| tgmed-dev-clean		  |6.19%	    |5.92%	    |6.11%	   |6.29%	    |5.99%     |6.10%(0.15%)
+| tgmed-dev-other		  |15.59%	    |15.45%	    |15.68%	   |15.67%	  |15.60%    |15.60%(0.09%)
+| tgmed-test-clean		|6.39%	    |6.25%	    |6.49%	   |6.55%	    |6.37%     |6.41%(0.12%)
+| tgmed-test-other		|16.28%	    |15.77%	    |15.83%	   |16.20%	  |16.12%    |16.04%(0.23%)
+| tglarge-dev-clean		|5.19%	    |5.11%	    |5.16%	   |5.29%	    |5.14%     |5.18%(0.07%)
+| tglarge-dev-other		|13.84%	    |13.81%	    |14.14%	   |13.97%	  |14.06%    |13.96%(0.14%)
+| tglarge-test-clean	|5.58%	    |5.41%	    |5.58%	   |5.65%	    |5.47%     |5.54%(0.10%)
+| tglarge-test-other	|14.61%	    |14.18%	    |14.15%	   |14.52%	  |14.53%    |14.40%(0.22%)
+| fglarge-dev-clean		|4.95%	    |4.86%	    |4.96%	   |5.15%	    |4.91%     |4.97%(0.11%)
+| fglarge-dev-other		|13.17%	    |13.24%	    |13.46%	   |13.44%	  |13.45%    |13.35%(0.14%)
+| fglarge-test-clean	|5.37%	    |5.28%	    |5.40%	   |5.42%	    |5.38%     |5.37%(0.05%)
+| fglarge-test-other	|14.06%	    |13.66%	    |13.66%	   |14.05%	  |13.92%    |13.87%(0.20%)
+
+* treatment model results using trigram lm without pruning (./run_libri_phn.sh )
+
+| dataset            |treat1   |treat2  |treat3  |treat4  |treat5  |mean(std)
+| tgsmall-dev-clean	 |6.24%	   |6.29%	  |6.31%	 |6.20%	  |6.08%	 |6.22%(0.09%)
+| tgsmall-dev-other	 |15.62%	 |16.20%	|15.79%	 |15.97%	|15.84%	 |15.88%(0.22%)
+| tgsmall-test-clean |6.51%	   |6.63%	  |6.56%	 |6.66%	  |6.37%	 |6.55%(0.11%)
+| tgsmall-test-other |16.11%	 |16.41%	|16.26%	 |16.27%	|16.02%	 |16.21%(0.15%)
+| tgmed-dev-clean	   |5.78%	   |5.85%	  |5.77%	 |5.74%	  |5.66%	 |5.76%	(0.07%)
+| tgmed-dev-other	   |14.97%	 |15.36%	|14.95%	 |15.13%	|14.96%	 |15.07%(0.18%)
+| tgmed-test-clean	 |5.99%	   |6.18%	  |6.02%	 |6.09%	  |5.90%	 |6.04%(0.11%)
+| tgmed-test-other	 |15.31%	 |15.62%	|15.41%	 |15.37%	|15.20%	 |15.38%(0.15%)
+| tglarge-dev-clean	 |4.96%	   |4.94%	  |4.89%	 |5.05%	  |4.78%	 |4.92%(0.10%)
+| tglarge-dev-other	 |13.24%	 |13.77%	|13.37%	 |13.62%	|13.32%	 |13.46%(0.22%)
+| tglarge-test-clean |5.18%	   |5.42%	  |5.31%	 |5.30%	  |5.24%	 |5.29%(0.09%)
+| tglarge-test-other |13.67%	 |14.00%	|13.84%	 |13.93%	|13.71%	 |13.83%(0.14%)
+| fglarge-dev-clean	 |4.79%	   |4.76%	  |4.78%	 |4.82%	  |4.63%	 |4.76%(0.07%)
+| fglarge-dev-other	 |12.77%	 |13.20%	|12.84%	 |12.95%	|12.93%	 |12.94%(0.16%)
+| fglarge-test-clean |4.90%	   |5.34%	  |5.13%	 |5.21%	  |5.07%	 |5.13%(0.16%)
+| fglarge-test-other |13.02%	 |13.47%	|13.31%	 |13.47%	|13.13%	 |13.28%(0.20%)
+

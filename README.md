@@ -31,7 +31,7 @@ python -c "import tensorflow as tf; print(tf.__version__)"
 ### Experiment
 We give the detailed experiment setup for [WSJ](./egs/wsj) and [Librispeech](./egs/libri). Refer to RESULT under each example setup for experiment detailed results.
 
-* Due to the GPU operation non-deterministic in model training, the result may not be reproduced exactly every time, especially for small dataset such as WSJ.  To address this issue, we run the same setting on the same data multiple times. In this way we could give more meaningful comparison. For both WSJ and LibriSpeech, we ran the same setting 5 times for both baseline and treatment. The overal comparison for WSJ is [result](./egs/wsj/result.md) and for LibriSpeech is [result](./egs/libri/result.md).  
+* Due to the GPU operation non-deterministic in model training, the result may not be reproduced exactly every time, especially for small dataset such as WSJ.  To address this issue, we run the same setting on the same data multiple times. In this way we could give more meaningful comparison. For both WSJ and LibriSpeech, we ran the same setting 5 times for both baseline and treatment. The overal comparison for WSJ is [result](./egs/wsj/RESULT.md) and for LibriSpeech is [result](./egs/libri/RESULT.md).  
 ### References
 This is the code we used for the following paper.
 

@@ -22,21 +22,35 @@ import random
 import sys
 import time
 import tensorflow as tf
+from tensorflow.python.lib.io import file_io
 from operator import itemgetter
 
 
-def _splice(nnet_input, left_context, right_context):
-    res = []
+def _splice(nnet_input, left_context, right_context, subsample):
     num_rows = tf.shape(nnet_input)[0]
-    first_frame = tf.slice(nnet_input, [0, 0], [1, -1])
-    last_frame = tf.slice(nnet_input, [num_rows - 1, 0], [1, -1])
-    left_padding = tf.tile(first_frame, [left_context, 1])
-    right_padding = tf.tile(last_frame, [right_context, 1])
-    padded_input = tf.concat([left_padding, nnet_input, right_padding], 0)
-    for i in xrange(left_context + right_context + 1):
-        frame = tf.slice(padded_input, [i, 0], [num_rows, -1])
-        res.append(frame)
-
+    res = []
+    if subsample <= 1:
+        first_frame = tf.slice(nnet_input, [0, 0], [1, -1])
+        last_frame = tf.slice(nnet_input, [num_rows - 1, 0], [1, -1])
+        left_padding = tf.tile(first_frame, [left_context, 1])
+        right_padding = tf.tile(last_frame, [right_context, 1])
+        padded_input = tf.concat([left_padding, nnet_input, right_padding], 0)
+        for i in xrange(left_context + right_context + 1):
+            frame = tf.slice(padded_input, [i, 0], [num_rows, -1])
+            res.append(frame)
+    else:
+        make_up = right_context
+        if subsample - 1 > right_context:
+            make_up = subsample - 1
+        new_num_rows =  num_rows + make_up - right_context
+        first_frame = tf.slice(nnet_input, [0, 0], [1, -1])
+        last_frame = tf.slice(nnet_input, [num_rows - 1, 0], [1, -1])
+        left_padding = tf.tile(first_frame, [left_context, 1])
+        right_padding = tf.tile(last_frame, [make_up, 1])
+        padded_input = tf.concat([left_padding, nnet_input, right_padding], 0)
+        for i in xrange(left_context + right_context + 1):
+            frame = tf.slice(padded_input, [i, 0], [new_num_rows, -1])
+            res.append(frame)
     return tf.concat(res, 1)
 
 
@@ -52,6 +66,150 @@ def _subsample(nnet_input, factor):
 
 
 def dataset_from_tfrecords(tfrecords_scp,
+                           left_context = 0,
+                           right_context = 0,
+                           subsample = 0,
+                           shuffle = False,
+                           seed = None,
+                           num_parallel_calls = 32,
+                           repeat=0):
+    tfrecord_list = []
+    filename_list = []
+    input_dim = None
+    has_label = None
+    line_no=0
+    for line in open(tfrecords_scp, 'r'):
+        token = line.rstrip().split()
+        fid_ = token[0]
+        num_cols_ = int(token[-3])
+        has_label_ = int(token[-2])
+        tfrecord_ = token[-1]
+        tfrecord_list.append(tfrecord_)
+        filename_list.append(fid_)
+        if input_dim is None:
+            input_dim = num_cols_
+        if has_label is None:
+            has_label = has_label_
+        if input_dim != num_cols_:
+            log = 'inconsistent nnet_input dimension in tfrecords:' + \
+                  ' %d vs. %d' % (input_dim, num_cols_)
+            tf.logging.fatal(log)
+            sys.exit(1)
+        if has_label != has_label_:
+            log = 'inconsistent has_label in tfrecords:' + \
+                  ' %d vs. %d' % (has_label, has_label_)
+            tf.logging.fatal(log)
+            sys.exit(1)
+
+    if shuffle:
+        if seed is None:
+            seed = time.time()
+        random.seed(seed)
+        random.shuffle(tfrecord_list)
+
+    
+    def _parse_feature(example_proto):
+        sequence_features = dict()
+
+        nnet_input = tf.FixedLenSequenceFeature(shape=[input_dim], dtype=tf.float32)
+        sequence_features['nnet_input'] = nnet_input
+        _, sequence = tf.parse_single_sequence_example(
+                          example_proto, sequence_features=sequence_features
+                      )
+
+        if left_context or right_context:
+            sequence['nnet_input'] = _splice(sequence['nnet_input'], left_context, right_context, subsample)
+            sequence['nnet_input'].set_shape([None, input_dim * (1 + left_context + right_context)])
+
+        if subsample:
+            sequence['nnet_input'] = _subsample(sequence['nnet_input'], subsample)
+
+        return sequence
+
+    def _parse_target(example_proto):
+        sequence_features = dict()
+
+        sequence_features['nnet_target'] = \
+                tf.FixedLenSequenceFeature(shape=[], dtype=tf.int64)
+
+        _, sequence = tf.parse_single_sequence_example(
+                          example_proto, sequence_features=sequence_features
+                      )
+
+        return sequence
+
+
+    filename = tf.data.Dataset.from_tensor_slices(filename_list)
+    dataset = tf.data.TFRecordDataset(tfrecord_list)
+    if repeat > 0:
+        dataset = dataset.repeat(repeat)
+        
+    tfrecord_feature = dataset.map(
+                              _parse_feature, num_parallel_calls=num_parallel_calls)
+    tfrecord_label = dataset.map(
+                             _parse_target, num_parallel_calls=num_parallel_calls)
+    input_dim *= (1 + left_context + right_context)
+    tfrecord=(tf.data.Dataset.zip((tfrecord_feature, tfrecord_label))).prefetch(100000)
+    if shuffle:
+        tfrecord.shuffle(buffer_size=100000)
+    return filename, tfrecord, input_dim
+
+def batch_write_tfrecord(writer, nnet_input, nnet_target=None):
+    feature_list = dict()
+
+    feature = [
+        tf.train.Feature(float_list=tf.train.FloatList(value=row))
+        for row in nnet_input
+    ]
+    feature_list['nnet_input'] = \
+        tf.train.FeatureList(feature=feature)
+
+    if nnet_target is not None:
+        feature = [
+            tf.train.Feature(int64_list=tf.train.Int64List(value=[val]))
+            for val in nnet_target
+        ]
+        feature_list['nnet_target'] = tf.train.FeatureList(feature=feature)
+        
+
+    example = tf.train.SequenceExample(
+                  feature_lists=tf.train.FeatureLists(feature_list=feature_list)
+              )
+
+    writer.write(example.SerializeToString())
+
+
+
+def write_tfrecord(filename, nnet_input, nnet_target=None):
+    num_rows = nnet_input.shape[0]
+    num_cols = nnet_input.shape[1]
+
+    writer = tf.python_io.TFRecordWriter(filename)
+
+    feature_list = dict()
+
+    feature = [
+        tf.train.Feature(float_list=tf.train.FloatList(value=row))
+        for row in nnet_input
+    ]
+    feature_list['nnet_input'] = \
+        tf.train.FeatureList(feature=feature)
+
+    if nnet_target is not None:
+        feature = [
+            tf.train.Feature(int64_list=tf.train.Int64List(value=[val]))
+            for val in nnet_target
+        ]
+        feature_list['nnet_target'] = tf.train.FeatureList(feature=feature)
+
+    example = tf.train.SequenceExample(
+                  feature_lists=tf.train.FeatureLists(feature_list=feature_list)
+              )
+
+    writer.write(example.SerializeToString())
+    writer.close()
+
+def dataset_from_test_tfrecords(tfrecords_scp,
                            left_context = 0,
                            right_context = 0,
                            subsample = 0,
@@ -90,7 +248,6 @@ def dataset_from_tfrecords(tfrecords_scp,
         random.seed(seed)
         random.shuffle(tfrecord_list)
 
-    
     def _parse(example_proto):
         sequence_features = dict()
 
@@ -106,7 +263,7 @@ def dataset_from_tfrecords(tfrecords_scp,
                       )
 
         if left_context or right_context:
-            sequence['nnet_input'] = _splice(sequence['nnet_input'], left_context, right_context)
+            sequence['nnet_input'] = _splice(sequence['nnet_input'], left_context, right_context, subsample)
             sequence['nnet_input'].set_shape([None, input_dim * (1 + left_context + right_context)])
 
         if subsample:
@@ -124,36 +281,6 @@ def dataset_from_tfrecords(tfrecords_scp,
     input_dim *= (1 + left_context + right_context)
     return filename, tfrecord, input_dim
 
-
-def write_tfrecord(filename, nnet_input, nnet_target=None):
-    num_rows = nnet_input.shape[0]
-    num_cols = nnet_input.shape[1]
-
-    writer = tf.python_io.TFRecordWriter(filename)
-
-    feature_list = dict()
-
-    feature = [
-        tf.train.Feature(float_list=tf.train.FloatList(value=row))
-        for row in nnet_input
-    ]
-    feature_list['nnet_input'] = \
-        tf.train.FeatureList(feature=feature)
-
-    if nnet_target is not None:
-        feature = [
-            tf.train.Feature(int64_list=tf.train.Int64List(value=[val]))
-            for val in nnet_target
-        ]
-        feature_list['nnet_target'] = tf.train.FeatureList(feature=feature)
-        
-
-    example = tf.train.SequenceExample(
-                  feature_lists=tf.train.FeatureLists(feature_list=feature_list)
-              )
-
-    writer.write(example.SerializeToString())
-    writer.close()
 
 
 if __name__=="__main__":
